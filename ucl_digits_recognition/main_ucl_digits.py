@@ -70,17 +70,20 @@ else:
 
     model = keras.Sequential()
     model.add(keras.layers.Flatten(input_shape=(64, 1)))
-    model.add(keras.layers.Dense(640, activation="sigmoid"))
-    model.add(keras.layers.Dense(320, activation="linear"))
-    model.add(keras.layers.Dense(640, activation="relu"))
-    model.add(keras.layers.Dense(320, activation="linear"))
+    model.add(keras.layers.Dense(64, activation="sigmoid"))
+    model.add(keras.layers.Dense(10, activation="relu"))
     model.add(keras.layers.Dense(10, activation="softmax"))
 
     # sparse_categorical_crossentropy for integer output
     # categorical_crossentropy for one hot encoding
     model.compile(optimizer="adam", metrics=["accuracy"], loss="sparse_categorical_crossentropy")
 
-    model.fit(x_train, y_train, epochs=20, batch_size=10)
+    history = model.fit(x_train, y_train, validation_data=[x_test, y_test], epochs=30, batch_size=50)
+    history_frame = pd.DataFrame(history.history)
+    history_frame.loc[:, ['loss', 'val_loss']].plot()
+    history_frame.loc[:, ['accuracy', 'val_accuracy']].plot()
+    matplotlib.pyplot.show()
+
     test_loss, test_acc = model.evaluate(x_test, y_test)
 
     model.save(model_name + model_extension)
