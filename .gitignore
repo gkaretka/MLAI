@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# kagle big data
+/kaggle_bacteria/test.csv
+/kaggle_bacteria/train.csv
+
 # Distribution / packaging
 .Python
 build/
