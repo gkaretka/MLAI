@@ -7,19 +7,16 @@ import numpy as np
 import pandas as pd
 from keras import layers
 from sklearn.preprocessing import scale
-
-from utils import remove_if_duplicates
+import tensorflow as tf
 
 train = False
 save = True
 use_cnn = True
 show_data = False
-model_name = "bacteria_model_14.h5"
+model_name = "bacteria_model_17.h5"
 
 if train:
     data = pd.read_csv("train.csv", index_col="row_id")
-    # remove duplicates
-    data = remove_if_duplicates(data)
 
     # labels
     label = ["target"]
@@ -52,19 +49,28 @@ if train:
     y = le.fit_transform(y)
     y = np.expand_dims(y, axis=-1)
 
-    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.5)
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.2)
 
     model = keras.Sequential()
-    model.add(keras.layers.Conv2D(filters=24, kernel_size=3, input_shape=(13, 22, 1), activation="relu", padding="same"))
+
+    """ Preprocessor """
+    # model.add(tf.keras.layers.experimental.preprocessing.RandomRotation(factor=0.10))
+    model.add(tf.keras.layers.experimental.preprocessing.RandomTranslation(height_factor=0.06, width_factor=0.04))
+    model.add(keras.layers.GaussianNoise(input_shape=(13, 22, 1), stddev=0.1))
+
+    """ Model """
+    model.add(keras.layers.Conv2D(filters=64, kernel_size=5, input_shape=(13, 22, 1), activation="relu", padding="valid"))
     model.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
-    model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.Conv2D(filters=32, kernel_size=3, activation="relu", padding="valid"))
+    model.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
+    #model.add(keras.layers.Dropout(0.2))
     model.add(keras.layers.Flatten())
+    model.add(keras.layers.Dense(256, activation="relu"))
     model.add(keras.layers.Dense(128, activation="relu"))
-    model.add(keras.layers.Dense(64, activation="relu"))
     model.add(keras.layers.Dense(y_unique_cnt, activation="softmax"))
 
     model.compile(optimizer="adam", metrics=["accuracy"], loss="sparse_categorical_crossentropy")
-    history = model.fit(X_train, y_train, epochs=10, validation_data=[X_test, y_test])
+    history = model.fit(X_train, y_train, epochs=20, validation_data=[X_test, y_test])
 
     history_frame = pd.DataFrame(history.history)
     history_frame.loc[:, ['loss', 'val_loss']].plot()
