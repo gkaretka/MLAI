@@ -9,11 +9,11 @@ from keras import layers
 from sklearn.preprocessing import scale
 import tensorflow as tf
 
-train = False
+train = True
 save = True
 use_cnn = True
 show_data = False
-model_name = "bacteria_model_17.h5"
+model_name = "bacteria_model_19.h5"
 
 if train:
     data = pd.read_csv("train.csv", index_col="row_id")
@@ -63,7 +63,7 @@ if train:
     model.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
     model.add(keras.layers.Conv2D(filters=32, kernel_size=3, activation="relu", padding="valid"))
     model.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
-    #model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.Dropout(0.2))
     model.add(keras.layers.Flatten())
     model.add(keras.layers.Dense(256, activation="relu"))
     model.add(keras.layers.Dense(128, activation="relu"))
