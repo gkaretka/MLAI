@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# any pdf
+*.pdf
+
 # kagle big data
 /kaggle_bacteria/test.csv
 /kaggle_bacteria/train.csv
